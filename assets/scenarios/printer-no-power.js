@@ -1,0 +1,127 @@
+export default {
+  id: "printer-no-power",
+  category: "printer",
+  title: "Printer Won't Power On",
+  ticketSummary: "Department printer is completely dead — no lights, no display, no sound when plugged in and switched on.",
+  sceneModule: "../scenes/printer.js",
+  steps: [
+    {
+      type: "intro",
+      title: "Ticket Received",
+      body: "A shared department printer won't power on at all. Diagnose, repair, test, and return it.",
+    },
+    {
+      type: "esd-gate",
+      title: "Before You Touch Anything",
+      body: "Printers have high-voltage components near the fuser — always unplug and discharge before opening the case, exactly like any other repair.",
+    },
+    {
+      type: "screw-panel",
+      title: "Open the Back Panel",
+      body: "Remove the two screws holding the back access panel in place.",
+      panelId: "backPanel",
+      screws: [
+        { id: "screw1", label: "Left back-panel screw" },
+        { id: "screw2", label: "Right back-panel screw" },
+      ],
+      placementOptions: [
+        { id: "tray", label: "Set them in a labeled magnetic parts tray on the bench." },
+        { id: "pocket", label: "Drop them in your pocket for now." },
+        { id: "loose", label: "Leave them loose on the workbench." },
+      ],
+      correctPlacement: "tray",
+    },
+    {
+      type: "diagnose-select",
+      title: "Diagnose the Fault",
+      body: "With the panel off, test the outlet and cable, inspect the internal fuse, and check the power supply board. Select every issue you find.",
+      symptomText: "Symptom: completely dead — no lights, no display, no sound at all when plugged in and switched on.",
+      options: [
+        {
+          id: "cable",
+          label: "Power cable / wall outlet is bad",
+          explain: "Correct — a bad cable or dead outlet cuts power before it ever reaches the printer. Always the first, easiest thing to rule out.",
+        },
+        {
+          id: "fuse",
+          label: "Internal fuse has blown",
+          explain: "Correct — a blown internal fuse (often from a power surge) breaks the circuit even though the outlet and cable are fine.",
+        },
+        {
+          id: "psu",
+          label: "Power supply board has failed",
+          explain: "Correct — a dead PSU board can't deliver power to the rest of the printer even with good incoming AC.",
+        },
+        {
+          id: "harness",
+          label: "Internal power harness connector has vibrated loose",
+          explain: "Correct — years of vibration and thermal cycling can walk a harness connector partway out of its header, breaking continuity even though every board tests fine on its own.",
+        },
+        {
+          id: "toner",
+          label: "Toner cartridge is empty",
+          explain: "Not a cause — an empty cartridge affects print quality, not whether the unit powers on at all.",
+        },
+        {
+          id: "jam",
+          label: "There's a paper jam in the tray",
+          explain: "Not a cause — a paper jam prevents printing once it's on, it doesn't stop the unit from powering on in the first place.",
+        },
+      ],
+      correctIds: ["cable", "fuse", "psu", "harness"],
+    },
+    {
+      type: "connector-check",
+      title: "Test the Power Cable and Outlet",
+      body: "Click the power inlet to swap in a known-good cable and confirm the outlet itself is live.",
+      connectorId: "powerInlet",
+      actionLabel: "Test with known-good cable and outlet",
+    },
+    {
+      type: "connector-check",
+      title: "Replace the Blown Fuse",
+      body: "Click the internal fuse to swap in a replacement of the correct rating.",
+      connectorId: "fuse",
+      actionLabel: "Replace blown fuse",
+    },
+    {
+      type: "connector-check",
+      title: "Reseat / Replace the Power Supply Board",
+      body: "Click the power supply board to reseat its connections and confirm it's functioning.",
+      connectorId: "psuBoard",
+      actionLabel: "Reseat power supply board",
+    },
+    {
+      type: "connector-check",
+      title: "Reseat the Power Harness Connector",
+      body: "Click the harness connector between the PSU and the control board and push it firmly back into its header.",
+      connectorId: "harness",
+      actionLabel: "Reseat power harness connector",
+    },
+    {
+      type: "connector-check",
+      title: "Check the Toner Cartridge While It's Open",
+      body: "It's not related to this ticket, but good SOP is to check consumables anytime the unit is already open. Click the toner cartridge to pull it, check the level window, and reseat it.",
+      connectorId: "toner",
+      actionLabel: "Check and reseat toner cartridge",
+    },
+    {
+      type: "connector-check",
+      title: "Check the Paper Path for Jams",
+      body: "Same idea — click the paper tray to slide it out, fan-check the stack for jams or debris, and reseat it before closing up.",
+      connectorId: "paperTray",
+      actionLabel: "Check and reseat paper tray",
+    },
+    {
+      type: "test-run",
+      title: "Power On and Test",
+      body: "Plug the printer back in and switch it on to check for normal startup.",
+      testLabel: "Power On",
+    },
+    {
+      type: "signoff",
+      title: "Return to Department",
+      body: "Document what you found and fixed, then return the unit.",
+    },
+  ],
+};

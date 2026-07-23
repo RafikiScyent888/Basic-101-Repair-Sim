@@ -1,0 +1,111 @@
+export default {
+  id: "laptop-no-power",
+  category: "laptop",
+  title: "Laptop Won't Power On",
+  ticketSummary: "Customer's laptop is completely dead — no lights, no fan noise, nothing happens when the power button is pressed, even plugged in.",
+  sceneModule: "../scenes/laptop.js",
+  steps: [
+    {
+      type: "intro",
+      title: "Ticket Received",
+      body: "A customer's laptop won't power on at all, even connected to its AC adapter. Diagnose, repair, test, and return it to the department.",
+    },
+    {
+      type: "esd-gate",
+      title: "Before You Touch Anything",
+      body: "Laptops hold charge in the battery even when 'off' — treat this exactly like any other ESD-sensitive teardown.",
+    },
+    {
+      type: "screw-panel",
+      title: "Open the Bottom Panel",
+      body: "The laptop has been closed and flipped bottom-side-up on the mat. Remove the six bottom panel screws to access the battery bay.",
+      panelId: "bottomPanel",
+      screws: [
+        { id: "screw1", label: "Rear-left panel screw" },
+        { id: "screw2", label: "Rear-right panel screw" },
+        { id: "screw3", label: "Middle-left panel screw" },
+        { id: "screw4", label: "Middle-right panel screw" },
+        { id: "screw5", label: "Front-left panel screw" },
+        { id: "screw6", label: "Front-right panel screw" },
+      ],
+      placementOptions: [
+        { id: "tray", label: "Set them in a labeled magnetic parts tray on the bench." },
+        { id: "pocket", label: "Drop them in your pocket for now." },
+        { id: "loose", label: "Leave them loose on the workbench." },
+      ],
+      correctPlacement: "tray",
+    },
+    {
+      type: "diagnose-select",
+      title: "Diagnose the Fault",
+      body: "With the bottom panel off, inspect the battery, the power button ribbon, and test with a known-good adapter. Select every issue you find.",
+      symptomText: "Symptom: completely dead — no lights, no fan, no response to the power button even while plugged into AC power.",
+      options: [
+        {
+          id: "battery",
+          label: "Battery is swollen / completely dead",
+          explain: "Correct — a swollen, 0V battery can't supply power itself, and on some models a battery in this state can also confuse the charge controller enough to block AC-only operation. It's also a safety hazard on its own.",
+        },
+        {
+          id: "adapter",
+          label: "AC adapter is the wrong wattage for this model",
+          explain: "Correct — an under-wattage adapter may not supply enough power for the board to initialize at all, especially with a dead battery offering no buffer.",
+        },
+        {
+          id: "ribbon",
+          label: "Power button ribbon cable is disconnected",
+          explain: "Correct — if the power button's ribbon isn't connected, pressing it never sends a signal to the board, so nothing happens no matter how good the power source is.",
+        },
+        {
+          id: "ram",
+          label: "RAM has failed",
+          explain: "Not indicated yet — failed RAM typically still allows fans/lights/beep codes on power-on; it doesn't explain a completely dead unit with zero response.",
+        },
+        {
+          id: "board",
+          label: "Motherboard is completely dead",
+          explain: "Not confirmed — a dead board is possible in general, but this ticket's actual findings (battery, adapter, ribbon) fully explain the symptom without needing to replace the board.",
+        },
+      ],
+      correctIds: ["battery", "adapter", "ribbon"],
+    },
+    {
+      type: "part-swap",
+      title: "Replace the Battery",
+      body: "The battery is swollen and reads 0V. Install a known-good replacement that matches this model's voltage and capacity.",
+      slotId: "batterySlot",
+      slotLabel: "battery bay",
+      candidates: [
+        { id: "reuse", label: "Reinstall the same battery — it might just need a reset", specLine: "Swollen cells don't recover; this is a safety hazard" },
+        { id: "new", label: "Install a new battery matching this model's voltage and capacity", specLine: "Correct replacement part" },
+      ],
+      correctCandidateId: "new",
+      mismatchHint: "A swollen, dead battery is a safety hazard and won't hold a charge — it needs to be replaced, not reused.",
+    },
+    {
+      type: "connector-check",
+      title: "Reconnect the Power Button Ribbon",
+      body: "Click the power button ribbon connector and seat it fully.",
+      connectorId: "powerRibbon",
+      actionLabel: "Reconnect power button ribbon cable",
+    },
+    {
+      type: "connector-check",
+      title: "Swap in the Correct AC Adapter",
+      body: "The adapter that came in with this laptop is the wrong wattage for the model. Click the DC power jack to test with the correct-wattage adapter.",
+      connectorId: "dcJack",
+      actionLabel: "Test with correct-wattage AC adapter",
+    },
+    {
+      type: "test-run",
+      title: "Power On and Test",
+      body: "Plug in the correct adapter and press the power button to check for a normal boot.",
+      testLabel: "Press Power Button",
+    },
+    {
+      type: "signoff",
+      title: "Return to Department",
+      body: "Document what you found and fixed, then return the unit.",
+    },
+  ],
+};
