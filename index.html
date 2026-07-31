@@ -3,70 +3,333 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>IT Repair &ndash; First Person Prototype</title>
-<link rel="stylesheet" href="assets/engine/style.css" />
-<script type="importmap">
-{
-  "imports": {
-    "three": "./assets/vendor/three.module.min.js"
+<title>Basic 101 Repair Sim</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230b0e14'/%3E%3Crect x='24' y='30' width='52' height='36' rx='4' fill='none' stroke='%232563eb' stroke-width='6'/%3E%3Crect x='42' y='70' width='16' height='6' fill='%232563eb'/%3E%3C/svg%3E" />
+<style>
+  :root {
+    --bg: #0b0e14;
+    --panel: #131a29;
+    --panel-hover: #182238;
+    --border: #232d42;
+    --ink: #f1f5f9;
+    --ink-dim: #94a3b8;
+    --accent: #2563eb;
+    --accent-soft: #1d4ed8;
   }
-}
-</script>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    min-height: 100%;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 56px 24px 80px; }
+
+  header { text-align: center; margin-bottom: 48px; }
+  header .kicker {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(37, 99, 235, 0.12);
+    border: 1px solid rgba(37, 99, 235, 0.35);
+    border-radius: 999px;
+    padding: 5px 14px;
+    margin-bottom: 18px;
+  }
+  header h1 {
+    font-size: clamp(32px, 5vw, 48px);
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+  header p {
+    color: var(--ink-dim);
+    font-size: 16px;
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  section.group { margin-bottom: 44px; }
+  .group-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .group-head .icon { font-size: 22px; }
+  .group-head h2 { font-size: 20px; margin: 0; }
+  .group-head .count { color: var(--ink-dim); font-size: 13px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 14px;
+  }
+
+  .tile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+  }
+  .tile:hover, .tile:focus-visible {
+    background: var(--panel-hover);
+    border-color: var(--accent-soft);
+    transform: translateY(-2px);
+  }
+  .tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tile .badge {
+    align-self: flex-start;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    background: rgba(148, 163, 184, 0.1);
+    border-radius: 5px;
+    padding: 2px 7px;
+  }
+  .tile .badge.base { color: #7fe39a; background: rgba(34, 197, 94, 0.12); }
+  .tile h3 { font-size: 15px; margin: 0; line-height: 1.35; }
+  .tile p {
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    margin: 0;
+    line-height: 1.5;
+  }
+  .tile .go {
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .tile:hover .go, .tile:focus-visible .go { color: #60a5fa; }
+
+  footer {
+    text-align: center;
+    color: var(--ink-dim);
+    font-size: 12.5px;
+    margin-top: 56px;
+    line-height: 1.7;
+  }
+  footer kbd {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: inherit;
+  }
+</style>
 </head>
 <body>
-  <div id="viewport"></div>
-  <div id="crosshair"></div>
-  <div id="hint"></div>
-  <div id="toast"></div>
-  <div id="task-list"></div>
-  <div id="worn-items"></div>
-  <div id="move-hint">WASD to move<br>Click-drag or locked mouse to look<br>Scroll to zoom in and inspect<br>Click / <kbd>E</kbd> to interact<br>Hold <kbd>E</kbd> to hold-and-press</div>
+  <div class="wrap">
+    <header>
+      <span class="kicker">First-person hardware repair trainer</span>
+      <h1>Basic 101 Repair Sim</h1>
+      <p>Pick a machine, read the work order, diagnose the fault, and fix it yourself &mdash; ESD gate, real screws, real cables, all in the browser.</p>
+    </header>
 
-  <div id="modal-overlay" class="hidden">
-    <div id="modal-card"></div>
+    <section class="group">
+      <div class="group-head">
+        <span class="icon">🖥️</span>
+        <h2>Tower</h2>
+        <span class="count">6 scenarios</span>
+      </div>
+      <div class="grid">
+        <a class="tile" href="tower.html">
+          <span class="badge base">Base case</span>
+          <h3>New tower, no display</h3>
+          <p>Fans spin, lights come on, but there's no display, no beep, no Windows.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="tower-gpu.html">
+          <span class="badge">Variant</span>
+          <h3>New GPU, no display</h3>
+          <p>POSTs fine, but the monitor never gets a signal since a new card went in.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="tower-cables.html">
+          <span class="badge">Variant</span>
+          <h3>Random shutdowns after cable cleanup</h3>
+          <p>Boots fine, then randomly shuts off or reboots, especially under load.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="tower-storage.html">
+          <span class="badge">Variant</span>
+          <h3>New drive installed, won't boot</h3>
+          <p>POSTs fine but never reaches Windows after a second M.2 drive went in.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="tower-cooling.html">
+          <span class="badge">Variant</span>
+          <h3>Overheating after fan install</h3>
+          <p>Boots fine but throttles or crashes under load after new case fans went in.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="tower-ram.html">
+          <span class="badge">Variant</span>
+          <h3>Won't POST after RAM upgrade</h3>
+          <p>Upgraded from 2 to 4 sticks. Now it boot-loops or won't POST at all.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-head">
+        <span class="icon">💻</span>
+        <h2>Laptop</h2>
+        <span class="count">6 scenarios</span>
+      </div>
+      <div class="grid">
+        <a class="tile" href="laptop.html">
+          <span class="badge base">Base case</span>
+          <h3>Powers on, still no display</h3>
+          <p>Fan spins, power LED lit, keyboard backlight on &mdash; screen stays black.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="laptop-ram.html">
+          <span class="badge">Variant</span>
+          <h3>Won't POST after RAM upgrade</h3>
+          <p>Upgraded from 1 to 2 sticks. Now it boot-loops or won't POST at all.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="laptop-battery.html">
+          <span class="badge">Variant</span>
+          <h3>Won't power on after battery swap</h3>
+          <p>Replaced their own battery. Now nothing &mdash; no fan, no LED, no response.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="laptop-storage.html">
+          <span class="badge">Variant</span>
+          <h3>New SSD, won't boot to Windows</h3>
+          <p>Added a second M.2 SSD. POSTs fine but never reaches Windows.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="laptop-screen.html">
+          <span class="badge">Variant</span>
+          <h3>Still black after screen repair</h3>
+          <p>Did their own screen/hinge repair. Powers on fine, but the screen stays black.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="laptop-keyboard.html">
+          <span class="badge">Variant</span>
+          <h3>Won't power on after keyboard swap</h3>
+          <p>Replaced their own keyboard. Now it won't power on when pressed at all.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-head">
+        <span class="icon">🖨️</span>
+        <h2>Printer</h2>
+        <span class="count">6 scenarios</span>
+      </div>
+      <div class="grid">
+        <a class="tile" href="printer.html">
+          <span class="badge base">Base case</span>
+          <h3>Completely dead</h3>
+          <p>No lights, no display, no sound when plugged in and switched on.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="printer-toner.html">
+          <span class="badge">Variant</span>
+          <h3>Prints blank pages after toner swap</h3>
+          <p>Replaced the toner cartridge. Powers on and runs fine, but every page is blank.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="printer-jam.html">
+          <span class="badge">Variant</span>
+          <h3>Won't print after jam clearance</h3>
+          <p>Cleared a paper jam and reassembled. Now it won't complete a print job.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="printer-tray.html">
+          <span class="badge">Variant</span>
+          <h3>Jams after duplexer/tray install</h3>
+          <p>Added a second tray and duplex unit. Now it jams or misfeeds almost every job.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="printer-cleaning.html">
+          <span class="badge">Variant</span>
+          <h3>Dead after internal cleaning</h3>
+          <p>Opened it up to clean out dust. Now it's completely dead &mdash; no response.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="printer-formatter.html">
+          <span class="badge">Variant</span>
+          <h3>Dead after formatter board swap</h3>
+          <p>Swapped the main logic board for an unrelated issue. Now it won't respond at all.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-head">
+        <span class="icon">🗄️</span>
+        <h2>Workstation</h2>
+        <span class="count">6 scenarios</span>
+      </div>
+      <div class="grid">
+        <a class="tile" href="workstation.html">
+          <span class="badge base">Base case</span>
+          <h3>Suddenly won't POST</h3>
+          <p>Three years in service, working yesterday. This morning: no display, no beep.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="workstation-cmos.html">
+          <span class="badge">Variant</span>
+          <h3>CMOS battery finally dies</h3>
+          <p>Wrong date/time and lost BIOS settings for weeks. Today it won't POST at all.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="workstation-dust.html">
+          <span class="badge">Variant</span>
+          <h3>Shuts off under load</h3>
+          <p>Never been cleaned in years of service. Boots fine, shuts off under real load.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="workstation-psu.html">
+          <span class="badge">Variant</span>
+          <h3>Intermittent power issues</h3>
+          <p>Years in a high-traffic office. Powers off randomly, won't start some mornings.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="workstation-cable.html">
+          <span class="badge">Variant</span>
+          <h3>Drive errors after years of service</h3>
+          <p>Boots, but throws intermittent drive errors and sometimes won't see the boot drive.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+        <a class="tile" href="workstation-ramslot.html">
+          <span class="badge">Variant</span>
+          <h3>Memory errors after years of reseating</h3>
+          <p>RAM reseated many times over the years. Now throwing errors, sometimes fails to POST.</p>
+          <span class="go">Start repair &rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <kbd>WASD</kbd> to move &bull; mouse or click-drag to look &bull; <kbd>E</kbd> or click to interact<br>
+      Every scenario runs entirely in your browser &mdash; nothing to install.
+    </footer>
   </div>
-
-  <div id="blocker">
-    <div id="blocker-card">
-      <h1>Tower Workstation Setup</h1>
-      <p>A customer built a new tower themselves: fans spin and lights come on, but there's no display, no beep code, and it never reaches Windows. Diagnose, repair, test, and return it.</p>
-      <div class="start-btn">Click to start</div>
-    </div>
-  </div>
-
-  <script type="module">
-    import { buildFPScene } from "./assets/scene.js";
-
-    const viewport = document.getElementById("viewport");
-    const blocker = document.getElementById("blocker");
-
-    const scenePromise = buildFPScene(viewport, {
-      hintEl: document.getElementById("hint"),
-      toastEl: document.getElementById("toast"),
-      crosshairEl: document.getElementById("crosshair"),
-      taskListEl: document.getElementById("task-list"),
-      wornItemsEl: document.getElementById("worn-items"),
-      modalOverlayEl: document.getElementById("modal-overlay"),
-      modalCardEl: document.getElementById("modal-card"),
-    });
-
-    blocker.addEventListener("click", async () => {
-      const api = await scenePromise;
-      // Hide immediately rather than waiting on a pointerlockchange event —
-      // pointer lock can silently fail to engage in a sandboxed embed, and
-      // the scene is still fully playable via click-and-drag look in that
-      // case, so the blocker shouldn't get stuck covering the viewport.
-      blocker.classList.add("hidden");
-      api.requestLock();
-    });
-
-    document.addEventListener("pointerlockchange", async () => {
-      const api = await scenePromise;
-      // Only re-show the blocker when pointer lock was actually engaged and
-      // then released (e.g. Esc) — not just because it never engaged in
-      // the first place, and not because a modal intentionally released it.
-      if (!api.isModalOpen() && !api.isLocked()) blocker.classList.remove("hidden");
-    });
-  </script>
 </body>
 </html>
