@@ -4,6 +4,8 @@ A first-person, browser-based IT hardware repair trainer built with [three.js](h
 
 **Play it live:** https://rafikiscyent888.github.io/Basic-101-Repair-Sim/
 
+The root URL opens a tile menu — pick any of the 24 scenarios below and it launches directly in the browser.
+
 ## Controls
 
 | Input | Action |
@@ -18,12 +20,10 @@ Pointer lock is used when available; if the page is embedded somewhere that bloc
 
 ## Scenarios
 
-Visiting the root URL above loads the **Tower No-Boot Repair** scenario. Every other scenario is a separate page — link directly to any of them:
-
 ### 🖥️ Tower
 | Scenario | Link |
 |---|---|
-| New tower, no display / no beep | [`/`](https://rafikiscyent888.github.io/Basic-101-Repair-Sim/) |
+| New tower, no display / no beep | [`tower.html`](https://rafikiscyent888.github.io/Basic-101-Repair-Sim/tower.html) |
 | New GPU installed, no display | [`tower-gpu.html`](https://rafikiscyent888.github.io/Basic-101-Repair-Sim/tower-gpu.html) |
 | Cable management redo, random shutdowns | [`tower-cables.html`](https://rafikiscyent888.github.io/Basic-101-Repair-Sim/tower-cables.html) |
 | New M.2 drive, won't boot to Windows | [`tower-storage.html`](https://rafikiscyent888.github.io/Basic-101-Repair-Sim/tower-storage.html) |
