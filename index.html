@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>IT Repair &ndash; First Person Prototype</title>
+<link rel="stylesheet" href="assets/engine/style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "./assets/vendor/three.module.min.js"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="viewport"></div>
+  <div id="crosshair"></div>
+  <div id="hint"></div>
+  <div id="toast"></div>
+  <div id="task-list"></div>
+  <div id="worn-items"></div>
+  <div id="move-hint">WASD to move<br>Click-drag or locked mouse to look<br>Scroll to zoom in and inspect<br>Click / <kbd>E</kbd> to interact<br>Hold <kbd>E</kbd> to hold-and-press</div>
+
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-card"></div>
+  </div>
+
+  <div id="blocker">
+    <div id="blocker-card">
+      <h1>Tower Workstation Setup</h1>
+      <p>A customer built a new tower themselves: fans spin and lights come on, but there's no display, no beep code, and it never reaches Windows. Diagnose, repair, test, and return it.</p>
+      <div class="start-btn">Click to start</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { buildFPScene } from "./assets/scene.js";
+
+    const viewport = document.getElementById("viewport");
+    const blocker = document.getElementById("blocker");
+
+    const scenePromise = buildFPScene(viewport, {
+      hintEl: document.getElementById("hint"),
+      toastEl: document.getElementById("toast"),
+      crosshairEl: document.getElementById("crosshair"),
+      taskListEl: document.getElementById("task-list"),
+      wornItemsEl: document.getElementById("worn-items"),
+      modalOverlayEl: document.getElementById("modal-overlay"),
+      modalCardEl: document.getElementById("modal-card"),
+    });
+
+    blocker.addEventListener("click", async () => {
+      const api = await scenePromise;
+      // Hide immediately rather than waiting on a pointerlockchange event —
+      // pointer lock can silently fail to engage in a sandboxed embed, and
+      // the scene is still fully playable via click-and-drag look in that
+      // case, so the blocker shouldn't get stuck covering the viewport.
+      blocker.classList.add("hidden");
+      api.requestLock();
+    });
+
+    document.addEventListener("pointerlockchange", async () => {
+      const api = await scenePromise;
+      // Only re-show the blocker when pointer lock was actually engaged and
+      // then released (e.g. Esc) — not just because it never engaged in
+      // the first place, and not because a modal intentionally released it.
+      if (!api.isModalOpen() && !api.isLocked()) blocker.classList.remove("hidden");
+    });
+  </script>
+</body>
+</html>
